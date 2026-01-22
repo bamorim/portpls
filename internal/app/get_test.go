@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/allocations"
 )
 
 func setupTestEnv(t *testing.T) (configPath, allocPath, dir string) {

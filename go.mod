@@ -1,4 +1,4 @@
-module portpls
+module github.com/bamorim/portpls
 
 go 1.22
 

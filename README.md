@@ -14,11 +14,39 @@
 
 ## Installation
 
+### Go install (recommended)
+
+Install the latest version:
+
+```bash
+go install github.com/bamorim/portpls@latest
+```
+
+Install a specific version:
+
+```bash
+go install github.com/bamorim/portpls@v1.0.0
+```
+
+Make sure `~/go/bin` is in your `PATH`:
+
+```bash
+export PATH=$PATH:~/go/bin
+```
+
 ### Build from source
 
 ```bash
 go build -o portpls ./cmd/portpls
 ```
+
+Or use the Makefile:
+
+```bash
+make build
+```
+
+The binary will be created at `bin/portpls`.
 
 ### Configuration
 

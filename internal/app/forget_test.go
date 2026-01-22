@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/allocations"
 )
 
 func TestForget(t *testing.T) {
