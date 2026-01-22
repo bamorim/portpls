@@ -52,7 +52,7 @@ func TestGetPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -96,7 +96,7 @@ func TestGetPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -133,7 +133,7 @@ func TestGetPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -167,7 +167,7 @@ func TestGetPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -199,7 +199,7 @@ func TestGetPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 

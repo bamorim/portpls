@@ -90,9 +90,14 @@ func listCommand() *cli.Command {
 		Usage: "List all port allocations",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "format", Aliases: []string{"f"}, Value: "table", Usage: "Output format: table, json"},
+			&cli.StringFlag{Name: "directory", Usage: "Filter by directory"},
 		},
 		Action: func(c *cli.Context) error {
-			entries, err := app.ListAllocations(optionsFromContext(c))
+			filter, err := listFilter(c)
+			if err != nil {
+				return exitForError(err)
+			}
+			entries, err := app.ListAllocations(optionsFromContext(c), filter)
 			if err != nil {
 				return exitForError(err)
 			}
@@ -133,6 +138,7 @@ func unlockCommand() *cli.Command {
 		Usage: "Unlock a port",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "main", Usage: "Named allocation"},
+			&cli.StringFlag{Name: "directory", Usage: "Override directory"},
 		},
 		Action: func(c *cli.Context) error {
 			portNum, err := app.UnlockPort(optionsFromContext(c), c.String("name"))
@@ -151,17 +157,36 @@ func forgetCommand() *cli.Command {
 		Usage: "Remove port allocations",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "main", Usage: "Named allocation"},
-			&cli.BoolFlag{Name: "all", Usage: "Remove all allocations for current directory"},
-			&cli.BoolFlag{Name: "all-directories", Usage: "Remove all allocations for all directories"},
+			&cli.BoolFlag{Name: "all", Usage: "Remove all allocations"},
+			&cli.BoolFlag{Name: "all-directories", Usage: "Apply to all directories instead of just one"},
+			&cli.StringFlag{Name: "directory", Usage: "Override directory"},
 		},
 		Action: func(c *cli.Context) error {
+			// Determine the directory filter
+			var filter app.DirectoryFilter
+			var err error
+			if c.Bool("all-directories") {
+				filter = app.NoFilter()
+			} else {
+				filter, err = app.FilterBySelector(directorySelector(c))
+				if err != nil {
+					return exitForError(err)
+				}
+			}
+
+			// Only require confirmation for global delete (--all --all-directories)
+			var confirm func() bool
+			if c.Bool("all") && c.Bool("all-directories") {
+				confirm = confirmAll
+			}
+
 			result, err := app.Forget(
 				optionsFromContext(c),
+				filter,
 				c.String("name"),
 				c.IsSet("name"),
 				c.Bool("all"),
-				c.Bool("all-directories"),
-				confirmAll,
+				confirm,
 			)
 			if err != nil {
 				return exitForError(err)
@@ -233,9 +258,49 @@ func optionsFromContext(c *cli.Context) app.Options {
 	return app.Options{
 		ConfigPath:      c.String("config"),
 		AllocationsPath: c.String("allocations"),
-		Directory:       c.String("directory"),
+		Directory:       directorySelector(c),
 		Verbose:         c.Bool("verbose"),
 	}
+}
+
+// directorySelector returns a DirectorySelector from CLI flags.
+// Priority: command-specific --directory > parent/global --directory > current directory
+func directorySelector(c *cli.Context) app.DirectorySelector {
+	if c.IsSet("directory") {
+		return app.SpecificDirectory{Path: c.String("directory")}
+	}
+	if parent, ok := parentDirectory(c); ok {
+		return app.SpecificDirectory{Path: parent}
+	}
+	return app.CurrentDirectory{}
+}
+
+// listFilter returns a DirectoryFilter for the list command.
+// Priority: command-specific --directory > parent/global --directory > no filter (show all)
+func listFilter(c *cli.Context) (app.DirectoryFilter, error) {
+	if c.IsSet("directory") {
+		return app.FilterByDirectory(c.String("directory"))
+	}
+	if parent, ok := parentDirectory(c); ok {
+		return app.FilterByDirectory(parent)
+	}
+	return app.NoFilter(), nil
+}
+
+// parentDirectory returns the directory from the root/parent CLI context if set.
+func parentDirectory(c *cli.Context) (string, bool) {
+	lineage := c.Lineage()
+	if len(lineage) == 0 {
+		return "", false
+	}
+	root := lineage[len(lineage)-1]
+	if root == nil || root == c {
+		return "", false
+	}
+	if root.IsSet("directory") {
+		return root.String("directory"), true
+	}
+	return "", false
 }
 
 func exitForError(err error) error {

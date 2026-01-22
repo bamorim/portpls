@@ -31,10 +31,11 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
-		result, err := Forget(opts, "web", true, false, false, nil)
+		filter, _ := FilterByDirectory(absDir)
+		result, err := Forget(opts, filter, "web", true, false, nil)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -60,10 +61,12 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
-		result, err := Forget(opts, "nonexistent", true, false, false, nil)
+		absDir, _ := filepath.Abs(dir)
+		filter, _ := FilterByDirectory(absDir)
+		result, err := Forget(opts, filter, "nonexistent", true, false, nil)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -97,10 +100,11 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
-		result, err := Forget(opts, "", false, true, false, nil)
+		filter, _ := FilterByDirectory(absDir)
+		result, err := Forget(opts, filter, "", false, true, nil)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -140,7 +144,7 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
 		// Confirm returns true
@@ -150,7 +154,8 @@ func TestForget(t *testing.T) {
 			return true
 		}
 
-		result, err := Forget(opts, "", false, true, true, confirm)
+		filter := NoFilter() // Global delete across all directories
+		result, err := Forget(opts, filter, "", false, true, confirm)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -185,13 +190,14 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
 		// Confirm returns false
 		confirm := func() bool { return false }
 
-		_, err := Forget(opts, "", false, true, true, confirm)
+		filter := NoFilter() // Global delete across all directories
+		_, err := Forget(opts, filter, "", false, true, confirm)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}
@@ -212,6 +218,60 @@ func TestForget(t *testing.T) {
 		}
 	})
 
+	t.Run("forgets named allocation across all directories", func(t *testing.T) {
+		configPath, allocPath, dir := setupTestEnv(t)
+		writeConfig(t, configPath, 20000, 20010)
+
+		// Pre-populate allocations with same name in different directories
+		allocFile, _ := allocations.OpenLocked(allocPath, true)
+		absDir, _ := filepath.Abs(dir)
+		allocFile.SetAllocation(20001, &allocations.Allocation{
+			Directory: absDir, Name: "web",
+			AssignedAt: time.Now(), LastUsedAt: time.Now(),
+		})
+		allocFile.SetAllocation(20002, &allocations.Allocation{
+			Directory: "/other/project", Name: "web",
+			AssignedAt: time.Now(), LastUsedAt: time.Now(),
+		})
+		allocFile.SetAllocation(20003, &allocations.Allocation{
+			Directory: "/another/project", Name: "api",
+			AssignedAt: time.Now(), LastUsedAt: time.Now(),
+		})
+		allocFile.Save()
+		allocFile.Close()
+
+		opts := Options{
+			ConfigPath:      configPath,
+			AllocationsPath: allocPath,
+			Directory:       SpecificDirectory{Path: dir},
+		}
+
+		filter := NoFilter() // Match all directories
+		result, err := Forget(opts, filter, "web", true, false, nil)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !strings.Contains(result.Message, "2 allocation(s)") {
+			t.Errorf("expected '2 allocation(s)' in message, got: %s", result.Message)
+		}
+
+		// Verify both "web" allocations are deleted, "api" remains
+		allocFile2, _ := allocations.OpenLocked(allocPath, false)
+		defer allocFile2.Close()
+		if len(allocFile2.Data.Allocations) != 1 {
+			t.Errorf("expected 1 allocation remaining, got %d", len(allocFile2.Data.Allocations))
+		}
+		if _, exists := allocFile2.Data.Allocations["20003"]; !exists {
+			t.Error("allocation 20003 (api) should remain")
+		}
+		if _, exists := allocFile2.Data.Allocations["20001"]; exists {
+			t.Error("allocation 20001 (web) should be deleted")
+		}
+		if _, exists := allocFile2.Data.Allocations["20002"]; exists {
+			t.Error("allocation 20002 (web) should be deleted")
+		}
+	})
+
 	t.Run("returns error when neither name nor all specified", func(t *testing.T) {
 		configPath, allocPath, dir := setupTestEnv(t)
 		writeConfig(t, configPath, 20000, 20010)
@@ -219,10 +279,12 @@ func TestForget(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
-		_, err := Forget(opts, "", false, false, false, nil)
+		absDir, _ := filepath.Abs(dir)
+		filter, _ := FilterByDirectory(absDir)
+		_, err := Forget(opts, filter, "", false, false, nil)
 		if err == nil {
 			t.Fatal("expected error, got nil")
 		}

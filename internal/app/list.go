@@ -16,10 +16,16 @@ type AllocationEntry struct {
 	LastUsedAt time.Time
 }
 
-func ListAllocations(opts Options) ([]AllocationEntry, error) {
+func ListAllocations(opts Options, filter DirectoryFilter) ([]AllocationEntry, error) {
+	if filter == nil {
+		filter = NoFilter()
+	}
 	entries := []AllocationEntry{}
 	err := withContext(opts, true, func(ctx *context) error {
 		for portStr, alloc := range ctx.allocFile.Data.Allocations {
+			if !filter(alloc.Directory) {
+				continue
+			}
 			portNum, err := strconv.Atoi(portStr)
 			if err != nil {
 				continue

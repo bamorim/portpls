@@ -234,34 +234,3 @@ func TestResolveOptions(t *testing.T) {
 	})
 }
 
-func TestResolveDirectory(t *testing.T) {
-	t.Run("uses override when provided", func(t *testing.T) {
-		dir, err := resolveDirectory("/custom/dir")
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if dir != "/custom/dir" {
-			t.Errorf("dir = %q, want /custom/dir", dir)
-		}
-	})
-
-	t.Run("uses current working directory when override is empty", func(t *testing.T) {
-		dir, err := resolveDirectory("")
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if dir == "" {
-			t.Error("dir should not be empty")
-		}
-	})
-
-	t.Run("returns absolute path", func(t *testing.T) {
-		dir, err := resolveDirectory("relative/path")
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if dir[0] != '/' {
-			t.Errorf("dir should be absolute, got %q", dir)
-		}
-	})
-}

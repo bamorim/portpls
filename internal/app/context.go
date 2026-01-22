@@ -2,8 +2,6 @@ package app
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -16,7 +14,7 @@ import (
 type Options struct {
 	ConfigPath      string
 	AllocationsPath string
-	Directory       string
+	Directory       DirectorySelector // resolves to one directory
 	Verbose         bool
 	PortChecker     port.Checker // optional, defaults to TCPChecker
 }
@@ -46,7 +44,7 @@ func withContext(opts Options, exclusive bool, fn func(*context) error) error {
 		checker = port.TCPChecker{}
 	}
 	ctx := &context{config: cfg, allocFile: allocFile, logger: log, portChecker: checker}
-	ctx.directory, err = resolveDirectory(resolved.Directory)
+	ctx.directory, err = opts.Directory.ResolveDirectory()
 	if err != nil {
 		return err
 	}
@@ -72,17 +70,6 @@ func resolveOptions(opts Options) Options {
 	opts.ConfigPath = config.ExpandPath(opts.ConfigPath)
 	opts.AllocationsPath = config.ExpandPath(opts.AllocationsPath)
 	return opts
-}
-
-func resolveDirectory(override string) (string, error) {
-	if override != "" {
-		return filepath.Abs(override)
-	}
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Abs(wd)
 }
 
 func applyTTL(ctx *context) (bool, error) {

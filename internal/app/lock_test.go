@@ -31,7 +31,7 @@ func TestLockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -67,7 +67,7 @@ func TestLockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -104,7 +104,7 @@ func TestLockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 			PortChecker:     checker,
 		}
 
@@ -144,7 +144,7 @@ func TestUnlockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
 		port, err := UnlockPort(opts, "main")
@@ -174,7 +174,7 @@ func TestUnlockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
 		_, err := UnlockPort(opts, "nonexistent")
@@ -210,7 +210,7 @@ func TestUnlockPort(t *testing.T) {
 		opts := Options{
 			ConfigPath:      configPath,
 			AllocationsPath: allocPath,
-			Directory:       dir,
+			Directory:       SpecificDirectory{Path: dir},
 		}
 
 		_, err := UnlockPort(opts, "main")
