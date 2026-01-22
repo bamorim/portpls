@@ -103,6 +103,9 @@ portpls list
 
 # JSON format
 portpls list --format json
+
+# Filter to a specific directory
+portpls list --directory .
 ```
 
 **Output example:**
@@ -114,6 +117,7 @@ PORT  DIRECTORY                 NAME   STATUS  LOCKED  ASSIGNED             LAST
 
 **Options:**
 - `--format, -f FORMAT` - Output format: table, json (default: table)
+- `--directory PATH` - Filter allocations by directory
 
 ### `portpls lock` / `portpls unlock`
 
@@ -129,10 +133,12 @@ portpls lock --name web
 # Unlock
 portpls unlock
 portpls unlock --name web
+portpls unlock --directory ../archived-worktree
 ```
 
 **Options:**
 - `--name, -n NAME` - Named allocation (default: "main")
+- `--directory PATH` - Override directory
 
 ### `portpls forget`
 
@@ -150,12 +156,16 @@ portpls forget --all
 
 # Remove all allocations everywhere (prompts for confirmation)
 portpls forget --all --all-directories
+
+# Remove allocation for a different directory
+portpls forget --directory ../archived-worktree --name web
 ```
 
 **Options:**
 - `--name, -n NAME` - Named allocation to remove (default: "main")
 - `--all` - Remove all allocations for current directory
 - `--all-directories` - Combined with --all, remove everything
+- `--directory PATH` - Override directory
 
 ### `portpls scan`
 

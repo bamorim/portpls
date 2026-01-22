@@ -265,3 +265,48 @@ func TestResolveDirectory(t *testing.T) {
 		}
 	})
 }
+
+func TestOptionsResolvedDirectory(t *testing.T) {
+	t.Run("uses directory override when set", func(t *testing.T) {
+		opts := Options{
+			Directory:          "/custom/dir",
+			DirectorySet:       true,
+			ParentDirectory:    "/parent/dir",
+			ParentDirectorySet: true,
+		}
+		dir, err := opts.ResolvedDirectory()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if dir != "/custom/dir" {
+			t.Errorf("dir = %q, want /custom/dir", dir)
+		}
+	})
+
+	t.Run("falls back to parent directory when override not set", func(t *testing.T) {
+		opts := Options{
+			ParentDirectory:    "/parent/dir",
+			ParentDirectorySet: true,
+		}
+		dir, err := opts.ResolvedDirectory()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if dir != "/parent/dir" {
+			t.Errorf("dir = %q, want /parent/dir", dir)
+		}
+	})
+
+	t.Run("uses directory value when set without flag metadata", func(t *testing.T) {
+		opts := Options{
+			Directory: "/custom/dir",
+		}
+		dir, err := opts.ResolvedDirectory()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if dir != "/custom/dir" {
+			t.Errorf("dir = %q, want /custom/dir", dir)
+		}
+	})
+}

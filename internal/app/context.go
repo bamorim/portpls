@@ -14,11 +14,14 @@ import (
 )
 
 type Options struct {
-	ConfigPath      string
-	AllocationsPath string
-	Directory       string
-	Verbose         bool
-	PortChecker     port.Checker // optional, defaults to TCPChecker
+	ConfigPath         string
+	AllocationsPath    string
+	Directory          string
+	DirectorySet       bool
+	ParentDirectory    string
+	ParentDirectorySet bool
+	Verbose            bool
+	PortChecker        port.Checker // optional, defaults to TCPChecker
 }
 
 type context struct {
@@ -46,7 +49,7 @@ func withContext(opts Options, exclusive bool, fn func(*context) error) error {
 		checker = port.TCPChecker{}
 	}
 	ctx := &context{config: cfg, allocFile: allocFile, logger: log, portChecker: checker}
-	ctx.directory, err = resolveDirectory(resolved.Directory)
+	ctx.directory, err = resolved.ResolvedDirectory()
 	if err != nil {
 		return err
 	}
@@ -72,6 +75,21 @@ func resolveOptions(opts Options) Options {
 	opts.ConfigPath = config.ExpandPath(opts.ConfigPath)
 	opts.AllocationsPath = config.ExpandPath(opts.AllocationsPath)
 	return opts
+}
+
+func (opts Options) ResolvedDirectory() (string, error) {
+	override, _ := opts.directoryOverride()
+	return resolveDirectory(override)
+}
+
+func (opts Options) directoryOverride() (string, bool) {
+	if opts.DirectorySet || opts.Directory != "" {
+		return opts.Directory, true
+	}
+	if opts.ParentDirectorySet || opts.ParentDirectory != "" {
+		return opts.ParentDirectory, true
+	}
+	return "", false
 }
 
 func resolveDirectory(override string) (string, error) {

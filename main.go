@@ -90,6 +90,7 @@ func listCommand() *cli.Command {
 		Usage: "List all port allocations",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "format", Aliases: []string{"f"}, Value: "table", Usage: "Output format: table, json"},
+			&cli.StringFlag{Name: "directory", Usage: "Filter by directory"},
 		},
 		Action: func(c *cli.Context) error {
 			entries, err := app.ListAllocations(optionsFromContext(c))
@@ -133,6 +134,7 @@ func unlockCommand() *cli.Command {
 		Usage: "Unlock a port",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "main", Usage: "Named allocation"},
+			&cli.StringFlag{Name: "directory", Usage: "Override directory"},
 		},
 		Action: func(c *cli.Context) error {
 			portNum, err := app.UnlockPort(optionsFromContext(c), c.String("name"))
@@ -153,6 +155,7 @@ func forgetCommand() *cli.Command {
 			&cli.StringFlag{Name: "name", Aliases: []string{"n"}, Value: "main", Usage: "Named allocation"},
 			&cli.BoolFlag{Name: "all", Usage: "Remove all allocations for current directory"},
 			&cli.BoolFlag{Name: "all-directories", Usage: "Remove all allocations for all directories"},
+			&cli.StringFlag{Name: "directory", Usage: "Override directory"},
 		},
 		Action: func(c *cli.Context) error {
 			result, err := app.Forget(
@@ -230,12 +233,37 @@ func configCommand() *cli.Command {
 }
 
 func optionsFromContext(c *cli.Context) app.Options {
-	return app.Options{
-		ConfigPath:      c.String("config"),
-		AllocationsPath: c.String("allocations"),
-		Directory:       c.String("directory"),
-		Verbose:         c.Bool("verbose"),
+	directory := c.String("directory")
+	directorySet := c.IsSet("directory")
+	parentDirectory := ""
+	parentDirectorySet := false
+	if !directorySet {
+		parentDirectory, parentDirectorySet = parentDirectoryFromContext(c)
 	}
+	return app.Options{
+		ConfigPath:         c.String("config"),
+		AllocationsPath:    c.String("allocations"),
+		Directory:          directory,
+		DirectorySet:       directorySet,
+		ParentDirectory:    parentDirectory,
+		ParentDirectorySet: parentDirectorySet,
+		Verbose:            c.Bool("verbose"),
+	}
+}
+
+func parentDirectoryFromContext(c *cli.Context) (string, bool) {
+	lineage := c.Lineage()
+	if len(lineage) == 0 {
+		return "", false
+	}
+	root := lineage[len(lineage)-1]
+	if root == nil || root == c {
+		return "", false
+	}
+	if root.IsSet("directory") {
+		return root.String("directory"), true
+	}
+	return "", false
 }
 
 func exitForError(err error) error {

@@ -17,9 +17,13 @@ type AllocationEntry struct {
 }
 
 func ListAllocations(opts Options) ([]AllocationEntry, error) {
+	_, filterDirectory := opts.directoryOverride()
 	entries := []AllocationEntry{}
 	err := withContext(opts, true, func(ctx *context) error {
 		for portStr, alloc := range ctx.allocFile.Data.Allocations {
+			if filterDirectory && alloc.Directory != ctx.directory {
+				continue
+			}
 			portNum, err := strconv.Atoi(portStr)
 			if err != nil {
 				continue
