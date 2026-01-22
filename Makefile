@@ -9,10 +9,10 @@ LDFLAGS=-ldflags "-s -w -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X m
 .PHONY: build build-dev clean fmt test install
 
 build:
-	go build $(LDFLAGS) -o bin/$(BINARY) ./cmd/portpls
+	go build $(LDFLAGS) -o bin/$(BINARY) .
 
 build-dev:
-	go build -o bin/$(BINARY) ./cmd/portpls
+	go build -o bin/$(BINARY) .
 
 clean:
 	rm -rf bin/
@@ -24,4 +24,4 @@ test:
 	go test ./...
 
 install:
-	go install $(LDFLAGS) ./cmd/portpls
+	go install $(LDFLAGS) .

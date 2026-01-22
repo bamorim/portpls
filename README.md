@@ -37,7 +37,7 @@ export PATH=$PATH:~/go/bin
 ### Build from source
 
 ```bash
-go build -o portpls ./cmd/portpls
+go build -o portpls .
 ```
 
 Or use the Makefile:
