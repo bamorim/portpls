@@ -86,8 +86,8 @@ Location: `~/.config/portpls/config.json`
 
 ```json
 {
-  "port_start": 3000,
-  "port_end": 4000,
+  "port_start": 20000,
+  "port_end": 22000,
   "freeze_period": "24h",
   "allocation_ttl": "0",
   "log_file": ""
@@ -130,10 +130,10 @@ Location: `~/.local/share/portpls/allocations.json`
 
 ### Configuration Fields
 
-**`port_start`** (integer, default: 3000)
+**`port_start`** (integer, default: 20000)
 - Start of port range to allocate from
 
-**`port_end`** (integer, default: 4000)
+**`port_end`** (integer, default: 22000)
 - End of port range (inclusive)
 
 **`freeze_period`** (duration string, default: "24h")
@@ -416,10 +416,10 @@ portpls scan [options]
 # Scan port range
 portpls scan
 # Output:
-# Scanning ports 3000-4000...
-# Port 3005: used by node (pid=12345, cwd=/home/user/projects/app-a) - recorded
-# Port 3014: used by docker-proxy (container in /home/user/my-compose-app) - recorded
-# Port 3020: already allocated to /home/user/other-project
+# Scanning ports 20000-22000...
+# Port 20005: used by node (pid=12345, cwd=/home/user/projects/app-a) - recorded
+# Port 20014: used by docker-proxy (container in /home/user/my-compose-app) - recorded
+# Port 20020: already allocated to /home/user/other-project
 # 
 # Recorded 2 new allocation(s)
 
@@ -450,14 +450,14 @@ portpls config [KEY] [VALUE]
 # Show all config
 portpls config
 # Output:
-# port_start: 3000
-# port_end: 4000
+# port_start: 20000
+# port_end: 22000
 # freeze_period: 24h
 # allocation_ttl: 30d
 
 # Show specific value
 portpls config port_start
-# Output: 3000
+# Output: 20000
 
 # Set value
 portpls config port_start 5000
@@ -688,8 +688,8 @@ First run creates both files with defaults:
 **Config file** (`~/.config/portpls/config.json`):
 ```json
 {
-  "port_start": 3000,
-  "port_end": 4000,
+  "port_start": 20000,
+  "port_end": 22000,
   "freeze_period": "24h",
   "allocation_ttl": "0",
   "log_file": ""

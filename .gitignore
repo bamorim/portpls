@@ -1,0 +1,29 @@
+# Binaries
+/portpls
+/bin/
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go workspace
+/go.work
+/go.work.sum
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# macOS
+.DS_Store
+
+# Local state/config (optional to keep out of repo)
+/.context/
