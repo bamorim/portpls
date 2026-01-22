@@ -3,8 +3,6 @@ package app
 import (
 	"strconv"
 	"time"
-
-	"portpls/internal/port"
 )
 
 func findFreePort(ctx *context, name string, now time.Time) (int, error) {
@@ -39,7 +37,7 @@ func findFreePort(ctx *context, name string, now time.Time) (int, error) {
 			}
 			continue
 		}
-		if !port.IsFree(portNum) {
+		if !ctx.portChecker.IsFree(portNum) {
 			continue
 		}
 		return portNum, nil

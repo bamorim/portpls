@@ -7,7 +7,6 @@ import (
 
 	"portpls/internal/allocations"
 	"portpls/internal/docker"
-	"portpls/internal/port"
 	"portpls/internal/process"
 )
 
@@ -28,7 +27,7 @@ func Scan(opts Options) (ScanResult, error) {
 		now := time.Now().UTC()
 		added := 0
 		for portNum := start; portNum <= end; portNum++ {
-			if port.IsFree(portNum) {
+			if ctx.portChecker.IsFree(portNum) {
 				continue
 			}
 			if _, exists := ctx.allocFile.Data.Allocations[strconv.Itoa(portNum)]; exists {

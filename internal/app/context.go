@@ -10,6 +10,7 @@ import (
 	"portpls/internal/allocations"
 	"portpls/internal/config"
 	"portpls/internal/logger"
+	"portpls/internal/port"
 )
 
 type Options struct {
@@ -17,13 +18,15 @@ type Options struct {
 	AllocationsPath string
 	Directory       string
 	Verbose         bool
+	PortChecker     port.Checker // optional, defaults to TCPChecker
 }
 
 type context struct {
-	config    config.Config
-	allocFile *allocations.LockedFile
-	logger    logger.Logger
-	directory string
+	config      config.Config
+	allocFile   *allocations.LockedFile
+	logger      logger.Logger
+	directory   string
+	portChecker port.Checker
 }
 
 func withContext(opts Options, exclusive bool, fn func(*context) error) error {
@@ -38,7 +41,11 @@ func withContext(opts Options, exclusive bool, fn func(*context) error) error {
 	}
 	defer allocFile.Close()
 	log := logger.Logger{Path: cfg.LogFile, Verbose: resolved.Verbose}
-	ctx := &context{config: cfg, allocFile: allocFile, logger: log}
+	checker := opts.PortChecker
+	if checker == nil {
+		checker = port.TCPChecker{}
+	}
+	ctx := &context{config: cfg, allocFile: allocFile, logger: log, portChecker: checker}
 	ctx.directory, err = resolveDirectory(resolved.Directory)
 	if err != nil {
 		return err
