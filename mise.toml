@@ -1,0 +1,41 @@
+[tools]
+go = "1.22"
+"go:github.com/goreleaser/goreleaser/v2" = "latest"
+
+[tasks.build]
+description = "Build binary with version info"
+run = """
+VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "unknown")
+go build -ldflags "-s -w -X main.version=$VERSION -X main.commit=$COMMIT -X main.date=$DATE" -o bin/portpls .
+"""
+
+[tasks."build:dev"]
+description = "Build binary for development (no version info)"
+run = "go build -o bin/portpls ."
+
+[tasks.clean]
+description = "Remove build artifacts"
+run = "rm -rf bin/"
+
+[tasks.fmt]
+description = "Format Go code"
+run = "gofmt -w internal"
+
+[tasks.test]
+description = "Run tests"
+run = "go test ./..."
+
+[tasks.install]
+description = "Install binary with version info"
+run = """
+VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "unknown")
+go install -ldflags "-s -w -X main.version=$VERSION -X main.commit=$COMMIT -X main.date=$DATE" .
+"""
+
+[tasks.release]
+description = "Test release build locally"
+run = "goreleaser release --snapshot --clean"
