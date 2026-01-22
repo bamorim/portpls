@@ -4,8 +4,6 @@ import (
 	"sort"
 	"strconv"
 	"time"
-
-	"portpls/internal/port"
 )
 
 type AllocationEntry struct {
@@ -27,7 +25,7 @@ func ListAllocations(opts Options) ([]AllocationEntry, error) {
 				continue
 			}
 			status := "busy"
-			if port.IsFree(portNum) {
+			if ctx.portChecker.IsFree(portNum) {
 				status = "free"
 			}
 			entries = append(entries, AllocationEntry{

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"portpls/internal/allocations"
-	"portpls/internal/port"
 )
 
 func GetPort(opts Options, name string) (int, error) {
@@ -13,7 +12,7 @@ func GetPort(opts Options, name string) (int, error) {
 	err := withContext(opts, true, func(ctx *context) error {
 		now := time.Now().UTC()
 		if portNum, alloc := ctx.allocFile.FindByDirectoryName(ctx.directory, name); alloc != nil {
-			if port.IsFree(portNum) {
+			if ctx.portChecker.IsFree(portNum) {
 				alloc.LastUsedAt = now
 				ctx.allocFile.SetAllocation(portNum, alloc)
 				_ = ctx.logger.Event("ALLOC_UPDATE", fmt.Sprintf("port=%d (reused)", portNum))
