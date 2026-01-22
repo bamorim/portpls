@@ -2,8 +2,6 @@ package app
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
@@ -14,14 +12,11 @@ import (
 )
 
 type Options struct {
-	ConfigPath         string
-	AllocationsPath    string
-	Directory          string
-	DirectorySet       bool
-	ParentDirectory    string
-	ParentDirectorySet bool
-	Verbose            bool
-	PortChecker        port.Checker // optional, defaults to TCPChecker
+	ConfigPath      string
+	AllocationsPath string
+	Directory       DirectorySelector // resolves to one directory
+	Verbose         bool
+	PortChecker     port.Checker // optional, defaults to TCPChecker
 }
 
 type context struct {
@@ -49,7 +44,7 @@ func withContext(opts Options, exclusive bool, fn func(*context) error) error {
 		checker = port.TCPChecker{}
 	}
 	ctx := &context{config: cfg, allocFile: allocFile, logger: log, portChecker: checker}
-	ctx.directory, err = resolved.ResolvedDirectory()
+	ctx.directory, err = opts.Directory.ResolveDirectory()
 	if err != nil {
 		return err
 	}
@@ -75,32 +70,6 @@ func resolveOptions(opts Options) Options {
 	opts.ConfigPath = config.ExpandPath(opts.ConfigPath)
 	opts.AllocationsPath = config.ExpandPath(opts.AllocationsPath)
 	return opts
-}
-
-func (opts Options) ResolvedDirectory() (string, error) {
-	override, _ := opts.directoryOverride()
-	return resolveDirectory(override)
-}
-
-func (opts Options) directoryOverride() (string, bool) {
-	if opts.DirectorySet || opts.Directory != "" {
-		return opts.Directory, true
-	}
-	if opts.ParentDirectorySet || opts.ParentDirectory != "" {
-		return opts.ParentDirectory, true
-	}
-	return "", false
-}
-
-func resolveDirectory(override string) (string, error) {
-	if override != "" {
-		return filepath.Abs(override)
-	}
-	wd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Abs(wd)
 }
 
 func applyTTL(ctx *context) (bool, error) {
