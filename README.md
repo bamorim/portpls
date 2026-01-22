@@ -36,14 +36,16 @@ export PATH=$PATH:~/go/bin
 
 ### Build from source
 
+Using [mise](https://mise.jdx.dev/):
+
 ```bash
-go build -o portpls .
+mise run build
 ```
 
-Or use the Makefile:
+Or directly with go:
 
 ```bash
-make build
+go build -o portpls .
 ```
 
 The binary will be created at `bin/portpls`.

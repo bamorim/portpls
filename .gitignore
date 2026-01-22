@@ -1,6 +1,7 @@
 # Binaries
 /portpls
 /bin/
+/dist/
 
 # Go build artifacts
 *.exe
