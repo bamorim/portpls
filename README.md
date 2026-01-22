@@ -14,18 +14,22 @@
 
 ## Installation
 
-### Go install (recommended)
+### Using mise (recommended)
+
+Install globally using [mise](https://mise.jdx.dev/):
+
+```bash
+mise use -g ubi:bamorim/portpls
+```
+
+This will download the latest release binary and make it available in your PATH.
+
+### Using go install
 
 Install the latest version:
 
 ```bash
 go install github.com/bamorim/portpls@latest
-```
-
-Install a specific version:
-
-```bash
-go install github.com/bamorim/portpls@v1.0.0
 ```
 
 Make sure `~/go/bin` is in your `PATH`:
@@ -34,21 +38,9 @@ Make sure `~/go/bin` is in your `PATH`:
 export PATH=$PATH:~/go/bin
 ```
 
-### Build from source
+### Download binary from releases
 
-Using [mise](https://mise.jdx.dev/):
-
-```bash
-mise run build
-```
-
-Or directly with go:
-
-```bash
-go build -o portpls .
-```
-
-The binary will be created at `bin/portpls`.
+Download the latest binary for your platform from the [GitHub Releases](https://github.com/bamorim/portpls/releases) page and add it to your PATH.
 
 ### Configuration
 
