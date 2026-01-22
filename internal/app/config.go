@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"portpls/internal/config"
+	"github.com/bamorim/portpls/internal/config"
 )
 
 func ConfigShow(opts Options) ([]string, error) {

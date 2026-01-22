@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"portpls/internal/allocations"
-	"portpls/internal/config"
-	"portpls/internal/logger"
-	"portpls/internal/port"
+	"github.com/bamorim/portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/config"
+	"github.com/bamorim/portpls/internal/logger"
+	"github.com/bamorim/portpls/internal/port"
 )
 
 type Options struct {

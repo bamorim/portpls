@@ -3,7 +3,7 @@ package app
 import (
 	"fmt"
 
-	"portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/allocations"
 )
 
 type ForgetResult struct {

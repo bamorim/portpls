@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"portpls/internal/allocations"
-	"portpls/internal/config"
-	"portpls/internal/logger"
+	"github.com/bamorim/portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/config"
+	"github.com/bamorim/portpls/internal/logger"
 )
 
 // mockChecker allows controlling which ports appear free in tests.

@@ -13,16 +13,30 @@ import (
 
 	"github.com/urfave/cli/v2"
 
-	"portpls/internal/app"
+	"github.com/bamorim/portpls/internal/app"
 )
 
-var version = "dev"
+var (
+	version string
+	commit  string
+	date    string
+)
+
+func getVersion() string {
+	if version == "" {
+		return "dev"
+	}
+	if commit != "" {
+		return fmt.Sprintf("%s (%s)", version, commit[:7])
+	}
+	return version
+}
 
 func main() {
 	appCLI := &cli.App{
 		Name:    "portpls",
 		Usage:   "Port allocation CLI",
-		Version: version,
+		Version: getVersion(),
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "config", Usage: "Path to config file"},
 			&cli.StringFlag{Name: "allocations", Usage: "Path to allocations file"},

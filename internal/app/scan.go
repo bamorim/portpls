@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
-	"portpls/internal/allocations"
-	"portpls/internal/docker"
-	"portpls/internal/process"
+	"github.com/bamorim/portpls/internal/allocations"
+	"github.com/bamorim/portpls/internal/docker"
+	"github.com/bamorim/portpls/internal/process"
 )
 
 type ScanResult struct {
