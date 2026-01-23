@@ -19,7 +19,7 @@
 Install globally using [mise](https://mise.jdx.dev/):
 
 ```bash
-mise use -g ubi:bamorim/portpls
+mise use -g github:bamorim/portpls
 ```
 
 This will download the latest release binary and make it available in your PATH.
